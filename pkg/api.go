@@ -18,8 +18,7 @@ func GetUrl(request string) (string, error) {
 	devId := os.Getenv("PTV_DEVID")
 	key := os.Getenv("PTV_KEY")
 	if key == "" || devId == "" {
-		return "", errors.New("asdf")
-		// &error{"failed to get PTV_DEVID or PTV_KEY from environment"}
+		return "", errors.New("PTV_KEY or PTV_DEVID not set in environment")
 	}
 	baseURL := "http://timetableapi.ptv.vic.gov.au"
 
