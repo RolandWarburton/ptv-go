@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/rolandwarburton/ptv-status-line/pkg"
 	"time"
 )
-import "github.com/rolandwarburton/ptv-status-line/pkg"
 
 func main() {
 	// get the departures for a stop on a route
