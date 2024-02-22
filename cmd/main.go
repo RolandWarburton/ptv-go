@@ -11,7 +11,7 @@ import (
 
 func printRoutes() {
 	// get the departures for a stop on a route
-	routes, err := app.GetRoutes()
+	routes, err := app.GetRoutes("Belgrave")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -59,5 +59,5 @@ func printNextTwoDepartures() {
 }
 
 func main() {
-	printNextTwoDepartures()
+	printRoutes()
 }

@@ -42,7 +42,7 @@ func PrintFormattedDate(dateObj time.Time) {
 	fmt.Println(formattedDate)
 }
 
-func GetRoutes() ([]Route, error) {
+func GetRoutes(routeName string) ([]Route, error) {
 	requestString := "/v3/routes?route_types=0"
 	url, err := GetUrl(requestString)
 	if err != nil {
@@ -71,7 +71,22 @@ func GetRoutes() ([]Route, error) {
 	}
 
 	routes := response.Routes
-	return routes, nil
+
+	// if we are not searching for a route name return all the routes
+	if routeName == "" {
+		return routes, nil
+	}
+
+	matchingRoutes := []Route{}
+
+	for i := 0; i < len(routes); i++ {
+		route := routes[i]
+		if strings.Contains(route.RouteName, routeName) {
+			matchingRoutes = append(matchingRoutes, route)
+		}
+	}
+
+	return matchingRoutes, nil
 }
 
 func GetDepartures(stopID int, routeID int, queryParams string) ([]Departure, error) {
