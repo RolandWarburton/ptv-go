@@ -32,7 +32,8 @@ func GetUrl(request string) (string, error) {
 	h.Write([]byte(raw))
 	signature := hex.EncodeToString(h.Sum(nil))
 	url := fmt.Sprintf("%s%s&signature=%s", baseURL, raw, signature)
-	fmt.Println(url)
+	// print the URL for debugging
+	// fmt.Println(url)
 	return url, nil
 }
 
