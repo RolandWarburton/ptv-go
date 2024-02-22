@@ -41,6 +41,38 @@ func PrintFormattedDate(dateObj time.Time) {
 	fmt.Println(formattedDate)
 }
 
+func GetRoutes() ([]Route, error) {
+	requestString := "/v3/routes?route_types=0"
+	url, err := GetUrl(requestString)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("HTTP error! Status: %d", res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var response RouteResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	routes := response.Routes
+	return routes, nil
+}
+
 func GetDepartures(stopID int, routeID int, queryParams string) ([]Departure, error) {
 	requestString := fmt.Sprintf("/v3/departures/route_type/0/stop/%d/route/%d%s", stopID, routeID, queryParams)
 	url, err := GetUrl(requestString)

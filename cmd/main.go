@@ -1,12 +1,33 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/rolandwarburton/ptv-status-line/pkg"
+	"os"
 	"time"
+
+	app "github.com/rolandwarburton/ptv-status-line/pkg"
 )
 
-func main() {
+func printRoutes() {
+	// get the departures for a stop on a route
+	routes, err := app.GetRoutes()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// pretty print like so
+	jsonData, _ := json.MarshalIndent(routes, "", "  ")
+	fmt.Println(string(jsonData))
+
+	// write the routes to a file
+	file, _ := os.Create("routes.json")
+	defer file.Close()
+	file.Write(jsonData)
+}
+
+func printNextTwoDepartures() {
 	// get the departures for a stop on a route
 	departures, err := app.GetDepartures(1016, 2, "?expand=All&include_geopath=true")
 	if err != nil {
@@ -20,10 +41,6 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
-	// pretty print like so
-	// jsonData, err := json.MarshalIndent(nextBWDepartures[i], "", "  ")
-	// fmt.Println(string(jsonData))
 
 	nextDepartures := []string{}
 	for i := 0; i < len(nextBWDepartures); i++ {
@@ -39,4 +56,8 @@ func main() {
 		}
 	}
 	fmt.Println(nextDepartures)
+}
+
+func main() {
+	printNextTwoDepartures()
 }
