@@ -1,5 +1,10 @@
 package app
 
+type Status struct {
+	version string `json:"version"`
+	health  int    `json:"health"`
+}
+
 type Departure struct {
 	StopID                int    `json:"stop_id"`
 	RouteID               int    `json:"route_id"`
@@ -17,4 +22,23 @@ type Departure struct {
 
 type DepartureResponse struct {
 	Departures []Departure `json:"departures"`
+}
+
+type RouteServiceStatus struct {
+	description string `json:"description"`
+	timestamp   string `json:"timestamp"`
+}
+
+type Route struct {
+	routeServiceStatus RouteServiceStatus `json:"route_service_status"`
+	routeType          int                `json:"route_type"`
+	RouteID            int                `json:"route_id"`
+	RouteName          string             `json:"route_name"`
+	RouteNumber        string             `json:"route_number"`
+	RouteGtfsID        string             `json:"route_gtfs_id"`
+}
+
+type RouteResponse struct {
+	Routes []Route `json:"routes"`
+  Status Status `json:"status"`
 }
