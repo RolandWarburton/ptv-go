@@ -30,15 +30,6 @@ func printStops() {
 		fmt.Println(err)
 		return
 	}
-
-	// pretty print like so
-	jsonData, _ := json.MarshalIndent(routes, "", "  ")
-	fmt.Println(string(jsonData))
-
-	// write the routes to a file
-	file, _ := os.Create("stops.json")
-	defer file.Close()
-	file.Write(jsonData)
 }
 
 func printRoutes() {
