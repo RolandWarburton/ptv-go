@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	app "github.com/rolandwarburton/ptv-status-line/pkg"
+	"github.com/urfave/cli/v2"
 )
 
 func printStops() {
@@ -77,5 +79,16 @@ func printNextTwoDepartures() {
 }
 
 func main() {
-	printStops()
+	app := &cli.App{
+		Name:  "boom",
+		Usage: "make an explosive entrance",
+		Action: func(*cli.Context) error {
+			fmt.Println("boom! I say!")
+			return nil
+		},
+	}
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }
