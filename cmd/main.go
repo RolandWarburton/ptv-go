@@ -11,6 +11,18 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+func writeToJSONFile(data any) {
+	jsonData, _ := json.MarshalIndent(data, "", "  ")
+
+	// pretty print like so
+	// fmt.Println(string(jsonData))
+
+	// write the routes to a file
+	file, _ := os.Create("routes.json")
+	defer file.Close()
+	file.Write(jsonData)
+}
+
 func printStops() {
 	// get the departures for a stop on a route
 	routes, err := app.GetStops(2, "")
@@ -40,11 +52,6 @@ func printRoutes() {
 	// pretty print like so
 	jsonData, _ := json.MarshalIndent(routes, "", "  ")
 	fmt.Println(string(jsonData))
-
-	// write the routes to a file
-	file, _ := os.Create("routes.json")
-	defer file.Close()
-	file.Write(jsonData)
 }
 
 func printNextTwoDepartures() {
