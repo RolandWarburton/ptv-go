@@ -145,10 +145,6 @@ func GetNextDepartureTowards(departures []Departure, directionID int, count int)
 
 	for _, departure := range departures {
 		departureDateStr := departure.ScheduledDepartureUTC
-		// departureDateStr, ok := departure["scheduled_departure_utc"].(string)
-		// if !ok {
-		// 	return nil, fmt.Errorf("failed to parse departure date")
-		// }
 
 		departureDate, err := time.Parse(time.RFC3339, departureDateStr)
 		if err != nil {
