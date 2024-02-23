@@ -42,4 +42,31 @@ type RouteResponse struct {
 	Routes []Route `json:"routes"`
 	Status Status  `json:"status"`
 }
+
+type Ticket struct {
+	TicketType       string `json:"ticket_type"`
+	Zone             string `json:"zone"`
+	IsFreeFareZone   bool   `json:"is_free_fare_zone"`
+	TicketMachine    bool   `json:"ticket_machine"`
+	TicketChecks     bool   `json:"ticket_checks"`
+	VLineReservation bool   `json:"vline_reservation"`
+	TicketZones      []int  `json:"ticket_zones"`
+}
+
+type Stop struct {
+	DisruptionIds []string `json:"disruption_ids"`
+	StopSuburb    string   `json:"stop_suburb"`
+	RouteType     int      `json:"route_type"`
+	StopLatitude  float64  `json:"stop_latitude"`
+	StopLongitude float64  `json:"stop_longitude"`
+	StopSequence  int      `json:"stop_sequence"`
+	StopTicket    Ticket   `json:"stop_ticket"`
+	StopID        int      `json:"stop_id"`
+	StopName      string   `json:"stop_name"`
+	StopLandmark  string   `json:"stop_landmark"`
+}
+
+type StopResponse struct {
+	Stops []Stop `json:"stops"`
+	Status Status  `json:"status"`
 }

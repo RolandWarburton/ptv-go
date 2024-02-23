@@ -9,6 +9,24 @@ import (
 	app "github.com/rolandwarburton/ptv-status-line/pkg"
 )
 
+func printStops() {
+	// get the departures for a stop on a route
+	routes, err := app.GetStops(2, "")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// pretty print like so
+	jsonData, _ := json.MarshalIndent(routes, "", "  ")
+	fmt.Println(string(jsonData))
+
+	// write the routes to a file
+	file, _ := os.Create("stops.json")
+	defer file.Close()
+	file.Write(jsonData)
+}
+
 func printRoutes() {
 	// get the departures for a stop on a route
 	routes, err := app.GetRoutes()
@@ -59,5 +77,5 @@ func printNextTwoDepartures() {
 }
 
 func main() {
-	printNextTwoDepartures()
+	printStops()
 }

@@ -73,6 +73,38 @@ func GetRoutes() ([]Route, error) {
 	return routes, nil
 }
 
+func GetStops(routeID int, queryParams string) ([]Stop, error) {
+	requestString := fmt.Sprintf("/v3/stops/route/%d/route_type/0%s", routeID, queryParams)
+	url, err := GetUrl(requestString)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("HTTP error! Status: %d", res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var response StopResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	stops := response.Stops
+	return stops, nil
+}
+
 func GetDepartures(stopID int, routeID int, queryParams string) ([]Departure, error) {
 	requestString := fmt.Sprintf("/v3/departures/route_type/0/stop/%d/route/%d%s", stopID, routeID, queryParams)
 	url, err := GetUrl(requestString)
