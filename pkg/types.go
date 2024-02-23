@@ -40,5 +40,6 @@ type Route struct {
 
 type RouteResponse struct {
 	Routes []Route `json:"routes"`
-  Status Status `json:"status"`
+	Status Status  `json:"status"`
+}
 }
