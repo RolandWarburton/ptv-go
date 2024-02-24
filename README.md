@@ -1,6 +1,8 @@
 # PTV Status Line Test
 
-Exploring the PTV API to get the next scheduled departure for trains.
+Small tool to grab information from the PTV Timetable API.
+
+Swagger documentation can be found [here](https://timetableapi.ptv.vic.gov.au/swagger/ui/index)
 
 ## Examples
 
