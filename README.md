@@ -13,7 +13,7 @@ ptv-status-line routes Belgrave
 # format a route as a string
 ptv-status-line routes --format "RouteID RouteGtfsID RouteName" --delimiter " - "  Belgrave
 
-# print information about the Ringwood stop on the Bayswater line
+# print information about the Ringwood stop on the Belgrave line
 ptv-status-line stops --stop Ringwood 2
 
 # print a stops attribute as a string
