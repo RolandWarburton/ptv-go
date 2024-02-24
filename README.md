@@ -33,7 +33,7 @@ ptv-status-line departures \
     --delimiter " - "
 ```
 
-## Examples (continued)
+## Limitations
 
 The program does not support extracting nested values.
 For example `--format "StopTicket.Zone"` will not work.
