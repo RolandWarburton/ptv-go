@@ -47,7 +47,7 @@ func printFormatted[Type any](data []Type, format string, delimiter string) {
 				result += fmt.Sprintf("%v", field.Interface())
 			}
 		}
-		if i < len(data) {
+		if i < len(data) - 1 {
 			result += "\n"
 		}
 	}
