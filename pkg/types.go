@@ -70,3 +70,16 @@ type StopResponse struct {
 	Stops  []Stop `json:"stops"`
 	Status Status `json:"status"`
 }
+
+type Direction struct {
+	RouteDirectionDescription string `json:"route_direction_description"`
+	DirectionID               int    `json:"direction_id"`
+	DirectionName             string `json:"direction_name"`
+	RouteID                   int    `json:"route_id"`
+	RouteType                 int    `json:"route_type"`
+}
+
+type DirectionsResponse struct {
+	Directions []Direction `json:"directions"`
+	Status     Status      `json:"status"`
+}

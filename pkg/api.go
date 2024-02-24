@@ -164,6 +164,38 @@ func GetDepartures(stopID int, routeID int, queryParams string) ([]Departure, er
 	return departures, nil
 }
 
+func GetDirections(routeID int) ([]Direction, error) {
+	requestString := fmt.Sprintf("/v3/directions/route/%d", routeID)
+	url, err := GetUrl(requestString)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("HTTP error! Status: %d", res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var response DirectionsResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	directions := response.Directions
+	return directions, nil
+}
+
 func GetNextDepartureTowards(departures []Departure, directionID int, count int) ([]Departure, error) {
 	now := time.Now()
 
