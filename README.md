@@ -18,6 +18,19 @@ ptv-status-line stops --stop Ringwood 2
 
 # print a stops attribute as a string
 ptv-status-line stops --format "StopName" --delimiter " - " --stop Ringwood 2
+
+# print the directions for a route
+# you can get the route ID from `directions routes "ROUTE NAME"`
+ptv-status-line directions --format "DirectionID DirectionName" --delimiter " -> " 2
+
+# print the next departures from a station in a direction
+ptv-status-line departures \
+    --count 2 \
+    --direction 1 \
+    --route 9 \
+    --stop 1163 \
+    --format "StopID ScheduledDepartureUTC" \
+    --delimiter " - "
 ```
 
 ## Examples (continued)
