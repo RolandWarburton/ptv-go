@@ -29,6 +29,32 @@ func writeToJSONFile(data any) {
 	file.Write(jsonData)
 }
 
+func printFormatted[Type any](data []Type, format string, delimiter string) {
+	// format as a string
+	// Example --format "RouteID RouteName"
+	formatArgs := strings.Split(format, " ")
+	result := ""
+	for i, item := range data {
+		for j, arg := range formatArgs {
+			// dynamically access the fields of the Route
+			val := reflect.ValueOf(item)
+			field := val.FieldByName(arg)
+			if field.IsValid() && j < len(formatArgs)-1 {
+				result += fmt.Sprintf("%v%s", field.Interface(), delimiter)
+				// result += fmt.Sprintf("%v", field.Interface())
+				// }
+			} else {
+				result += fmt.Sprintf("%v", field.Interface())
+			}
+		}
+		if i < len(data) {
+			result += "\n"
+		}
+	}
+	fmt.Println(result)
+
+}
+
 func printNextDepartures(totalDepartures int) {
 	// get the departures for a stop on a route
 	departures, err := app.GetDepartures(1016, 2, "?expand=All&include_geopath=true")
@@ -77,22 +103,7 @@ func routeAction(cCtx *cli.Context, format string, delimiter string) error {
 		return nil
 	}
 
-	// format as a string
-	// Example --format "RouteID RouteName"
-	route := routes[0]
-	formatArgs := strings.Split(format, " ")
-	result := ""
-	for i, arg := range formatArgs {
-		// dynamically access the fields of the Route
-		val := reflect.ValueOf(route)
-		field := val.FieldByName(arg)
-		if field.IsValid() && i < len(formatArgs)-1 {
-			result += fmt.Sprintf("%v%s", field.Interface(), delimiter)
-		} else {
-			result += fmt.Sprintf("%v", field.Interface())
-		}
-	}
-	fmt.Println(result)
+	printFormatted[app.Route](routes, format, delimiter)
 	return nil
 }
 
@@ -122,21 +133,7 @@ func stopsAction(cCtx *cli.Context, stopName string, format string, delimiter st
 		return nil
 	}
 
-	// format as a string
-	stop := stops[0]
-	formatArgs := strings.Split(format, " ")
-	result := ""
-	for i, arg := range formatArgs {
-		// dynamically access the fields of the Route
-		val := reflect.ValueOf(stop)
-		field := val.FieldByName(arg)
-		if field.IsValid() && i < len(formatArgs)-1 {
-			result += fmt.Sprintf("%v%s", field.Interface(), delimiter)
-		} else {
-			result += fmt.Sprintf("%v", field.Interface())
-		}
-	}
-	fmt.Println(result)
+	printFormatted[app.Stop](stops, format, delimiter)
 
 	return nil
 }
@@ -174,21 +171,7 @@ func departuresAction(_ *cli.Context, routeID int, stopID int, direction int, de
 		return nil
 	}
 
-	for _, departure := range nextDepartures {
-		formatArgs := strings.Split(format, " ")
-		result := ""
-		for i, arg := range formatArgs {
-			// dynamically access the fields of the Route
-			val := reflect.ValueOf(departure)
-			field := val.FieldByName(arg)
-			if field.IsValid() && i < len(formatArgs)-1 {
-				result += fmt.Sprintf("%v%s", field.Interface(), delimiter)
-			} else {
-				result += fmt.Sprintf("%v", field.Interface())
-			}
-		}
-		fmt.Println(result)
-	}
+	printFormatted[app.Departure](nextDepartures, format, delimiter)
 	return nil
 }
 
@@ -210,21 +193,7 @@ func directionsAction(cCtx *cli.Context, format string, delimiter string) error 
 	}
 
 	// format as a string
-	for _, direction := range directions {
-		formatArgs := strings.Split(format, " ")
-		result := ""
-		for i, arg := range formatArgs {
-			// dynamically access the fields of the Route
-			val := reflect.ValueOf(direction)
-			field := val.FieldByName(arg)
-			if field.IsValid() && i < len(formatArgs)-1 {
-				result += fmt.Sprintf("%v%s", field.Interface(), delimiter)
-			} else {
-				result += fmt.Sprintf("%v", field.Interface())
-			}
-		}
-		fmt.Println(result)
-	}
+	printFormatted[app.Direction](directions, format, delimiter)
 	return nil
 }
 
