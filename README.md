@@ -2,7 +2,7 @@
 
 Small tool to grab information from the PTV Timetable API.
 
-Swagger documentation can be found [here](https://timetableapi.ptv.vic.gov.au/swagger/ui/index)
+Swagger documentation can be found [here](https://timetableapi.ptv.vic.gov.au/swagger/ui/index).
 
 ## Examples
 
