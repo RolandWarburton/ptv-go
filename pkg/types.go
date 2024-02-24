@@ -67,6 +67,6 @@ type Stop struct {
 }
 
 type StopResponse struct {
-	Stops []Stop `json:"stops"`
-	Status Status  `json:"status"`
+	Stops  []Stop `json:"stops"`
+	Status Status `json:"status"`
 }
