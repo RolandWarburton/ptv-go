@@ -89,7 +89,7 @@ func GetRoutes(routeName string) ([]Route, error) {
 	return matchingRoutes, nil
 }
 
-func GetStops(routeID int, queryParams string) ([]Stop, error) {
+func GetStops(routeID int, queryParams string, stopName string) ([]Stop, error) {
 	requestString := fmt.Sprintf("/v3/stops/route/%d/route_type/0%s", routeID, queryParams)
 	url, err := GetUrl(requestString)
 	if err != nil {
@@ -118,7 +118,18 @@ func GetStops(routeID int, queryParams string) ([]Stop, error) {
 	}
 
 	stops := response.Stops
-	return stops, nil
+
+	if stopName == "" {
+		return stops, nil
+	}
+
+	filteredStops := []Stop{}
+	for _, stop := range stops {
+		if strings.Contains(stop.StopName, stopName) {
+			filteredStops = append(filteredStops, stop)
+		}
+	}
+	return filteredStops, nil
 }
 
 func GetDepartures(stopID int, routeID int, queryParams string) ([]Departure, error) {
