@@ -196,7 +196,7 @@ func GetDirections(routeID int) ([]Direction, error) {
 	return directions, nil
 }
 
-func GetNextDepartureTowards(departures []Departure, directionID int, count int) ([]Departure, error) {
+func GetNextDepartureTowards(departures []Departure, directionID int, count int, tz string) ([]Departure, error) {
 	now := time.Now()
 
 	validDepartures := make([]Departure, 0)

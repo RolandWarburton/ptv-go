@@ -15,7 +15,81 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func prettyPrint(data any) {
+func convertDatesToTimezone[Type interface{}](data []Type, timezone string) ([]Type, error) {
+	var location *time.Location
+	var err error
+	if timezone == "UTC" {
+		location = time.UTC
+	} else {
+		location, err = time.LoadLocation(timezone)
+		if err != nil {
+			fmt.Println("Error loading location:", err)
+			return nil, err
+		}
+	}
+
+	slice := reflect.ValueOf(data)
+
+	// check a slice is being given
+	if slice.Kind() != reflect.Slice {
+		return nil, errors.New("a slice was not given")
+	}
+
+	// create a copy of the data
+	// we can overwrite these elements later as we iterate over the slice
+	newData := reflect.MakeSlice(reflect.TypeOf(data), slice.Len(), slice.Len())
+
+	//for each element in the reflected slice
+	for i := 0; i < slice.Len(); i++ {
+		elem := slice.Index(i)
+
+		// skip if this is not an interface that we can print
+		if !elem.CanInterface() {
+			newData.Index(i).Set(elem)
+			continue
+		}
+
+		// get the field in this interface
+		field := elem.FieldByName("ScheduledDepartureUTC")
+
+		// skip if this is not the ScheduledDepartureUTC field
+		if !field.IsValid() {
+			newData.Index(i).Set(elem)
+			continue
+		}
+
+		// // parse the date string into a date
+		layout := "02-01-2006 03:04 PM"
+		departureDate, err := time.Parse(layout, field.Interface().(string))
+		if err != nil {
+			fmt.Println(err)
+			field.SetString("date conversion failed")
+			newData.Index(i).Set(elem)
+			continue
+		}
+
+		// convert the timezone
+		departureDateTZ := departureDate.In(location)
+		field.SetString(departureDateTZ.Format("02-01-2006 03:04 PM"))
+
+		// overwrite the newData interface reflection with this new element
+		newData.Index(i).Set(elem)
+	}
+
+	// reconstruct the newData reflection as the initial data type
+	var result []Type
+	for i := 0; i < newData.Len(); i++ {
+		result = append(result, newData.Index(i).Interface().(Type))
+	}
+
+	return result, nil
+}
+
+func prettyPrint[Type interface{}](data []Type, timezone string) {
+	// convert the date to the specified timezone
+	data, _ = convertDatesToTimezone[Type](data, timezone)
+
+	// pretty print
 	jsonData, _ := json.MarshalIndent(data, "", "  ")
 	fmt.Println(string(jsonData))
 }
@@ -107,7 +181,7 @@ func stopsAction(cCtx *cli.Context, stopName string, format string, delimiter st
 	return nil
 }
 
-func departuresAction(_ *cli.Context, routeID int, stopID int, direction int, departuresCount int, format string, delimiter string) error {
+func departuresAction(_ *cli.Context, routeID int, stopID int, direction int, departuresCount int, format string, delimiter string, timezone string) error {
 	// get the departures for a stop on a route
 	departures, err := app.GetDepartures(stopID, routeID, "")
 	if err != nil {
@@ -116,7 +190,7 @@ func departuresAction(_ *cli.Context, routeID int, stopID int, direction int, de
 	}
 
 	// get the next N departures in a certain direction
-	departuresTowardsDirection, err := app.GetNextDepartureTowards(departures, direction, departuresCount)
+	departuresTowardsDirection, err := app.GetNextDepartureTowards(departures, direction, departuresCount, timezone)
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("failed to get departures in specific direction")
@@ -136,7 +210,7 @@ func departuresAction(_ *cli.Context, routeID int, stopID int, direction int, de
 	}
 
 	if format == "" {
-		prettyPrint(departuresTowardsDirection)
+		prettyPrint[app.Departure](departuresTowardsDirection, timezone)
 		return nil
 	}
 
@@ -157,7 +231,7 @@ func directionsAction(cCtx *cli.Context, format string, delimiter string) error 
 	directions, _ := app.GetDirections(routeID)
 	// print as json if no formatting is given
 	if format == "" {
-		prettyPrint(directions)
+		prettyPrint(directions, "Australia/Sydney")
 		return nil
 	}
 
@@ -174,6 +248,7 @@ func main() {
 	var routeID int
 	var stopID int
 	var directionID int
+	var timezone string
 
 	flags := []cli.Flag{
 		&cli.StringFlag{
@@ -187,6 +262,12 @@ func main() {
 			Value:       " ",
 			Usage:       "delimiter between format arguments",
 			Destination: &delimiter,
+		},
+		&cli.StringFlag{
+			Name:        "timezone",
+			Value:       "Australia/Sydney",
+			Usage:       "specify timezone for dates",
+			Destination: &timezone,
 		},
 	}
 
@@ -245,7 +326,7 @@ func main() {
 					},
 				),
 				Action: func(c *cli.Context) error {
-					return departuresAction(c, routeID, stopID, directionID, departuresCount, format, delimiter)
+					return departuresAction(c, routeID, stopID, directionID, departuresCount, format, delimiter, timezone)
 				},
 			},
 			{
