@@ -34,20 +34,22 @@ func routeAction(cCtx *cli.Context, format string, delimiter string) error {
 	return nil
 }
 
-func stopsAction(cCtx *cli.Context, stopName string, format string, delimiter string) error {
+func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter string) error {
 	// ensure a route ID is given
-	stopID := cCtx.Args().First()
-	if stopID == "" {
-		return errors.New("please specify a route ID")
-	}
-	var v int
-	var err error
-	if v, err = strconv.Atoi(stopID); err != nil {
-		return errors.New("please specify a valid route ID number")
+	stopName := cCtx.Args().First()
+	if stopName == "" {
+		return errors.New("please specify a stop name")
 	}
 
+	routes, err := app.GetRoutes(routeName)
+	if err != nil || len(routes) < 1 {
+		return fmt.Errorf("no route found for route %s", routeName)
+	}
+
+	route := routes[0]
+
 	// get the stops
-	stops, err := app.GetStops(v, "", stopName)
+	stops, err := app.GetStops(route.RouteID, "", stopName)
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("failed to get routes")
@@ -127,9 +129,9 @@ func directionsAction(cCtx *cli.Context, format string, delimiter string) error 
 func main() {
 	var format string
 	var delimiter string
-	var stopName string
 	var departuresCount int
 	var routeID int
+	var routeName string
 	var stopID int
 	var directionID int
 	var timezone string
@@ -171,13 +173,13 @@ func main() {
 				Name:  "stops",
 				Usage: "explore stops",
 				Flags: append(flags, &cli.StringFlag{
-					Name:        "stop",
+					Name:        "route",
 					Value:       "",
-					Usage:       "Filter a specific stop by the station name",
-					Destination: &stopName,
+					Usage:       "Specify the route the station is on",
+					Destination: &routeName,
 				}),
 				Action: func(c *cli.Context) error {
-					return stopsAction(c, stopName, format, delimiter)
+					return stopsAction(c, routeName, format, delimiter)
 				},
 			},
 			{

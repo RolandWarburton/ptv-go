@@ -18,8 +18,8 @@ ptv-status-line routes --format "RouteID RouteGtfsID RouteName" --delimiter " - 
 # print information about the Ringwood stop on the Belgrave line
 ptv-status-line stops --stop Ringwood 2
 
-# print a stops attribute as a string
-ptv-status-line stops --format "StopName" --delimiter " - " --stop Ringwood 2
+# print a stops attributes as a string
+ptv-status-line stops --route "Belgrave" --format "StopID StopName" Ringwood
 
 # print the directions for a route
 # you can get the route ID from `directions routes "ROUTE NAME"`
