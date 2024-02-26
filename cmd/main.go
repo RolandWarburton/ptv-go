@@ -38,9 +38,6 @@ func routeAction(cCtx *cli.Context, format string, delimiter string) ([]app.Rout
 func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter string) ([]app.Stop, error) {
 	// ensure a route ID is given
 	stopName := cCtx.Args().First()
-	if stopName == "" {
-		return nil, errors.New("please specify a stop name")
-	}
 
 	routes, err := app.GetRoutes(routeName)
 	if err != nil || len(routes) < 1 {
