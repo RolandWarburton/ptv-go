@@ -32,7 +32,7 @@ ptv-status-line departures \
     --route 9 \
     --stop 1163 \
     --format "StopID ScheduledDepartureUTC" \
-    --timezone "Australia/Sydney"
+    --timezone "Australia/Sydney" \
     --delimiter " - "
 ```
 
