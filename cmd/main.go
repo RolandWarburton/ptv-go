@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	app "github.com/rolandwarburton/ptv-status-line/pkg"
@@ -29,7 +30,7 @@ func routeAction(cCtx *cli.Context, format string, delimiter string) error {
 		return nil
 	}
 
-	PrintFormatted[app.Route](routes, format, delimiter)
+	PrintFormatted[app.Route](routes, format, delimiter, "Australia/Sydney")
 	return nil
 }
 
@@ -60,21 +61,60 @@ func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter s
 		return nil
 	}
 
-	PrintFormatted[app.Stop](stops, format, delimiter)
+	PrintFormatted[app.Stop](stops, format, delimiter, "Australia/Sydney")
 
 	return nil
 }
 
-func departuresAction(_ *cli.Context, routeID int, stopID int, direction int, departuresCount int, format string, delimiter string, timezone string) error {
+func departuresAction(_ *cli.Context, routeName string, stopName string, directionName string, departuresCount int, format string, delimiter string, timezone string) error {
+	routes, err := app.GetRoutes(routeName)
+	if err != nil || len(routes) < 1 {
+		return fmt.Errorf("no route found for route %s", routeName)
+	}
+	route := routes[0]
+
+	stops, err := app.GetStops(route.RouteID, "", stopName)
+	if err != nil || len(stops) < 1 {
+		return fmt.Errorf("no route found for route %s", routeName)
+	}
+	stop := stops[0]
+
 	// get the departures for a stop on a route
-	departures, err := app.GetDepartures(stopID, routeID, "")
+	departures, err := app.GetDepartures(stop.StopID, route.RouteID, "")
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("failed to get departures")
 	}
 
+	directions, err := app.GetDirections(route.RouteID)
+	if err != nil || len(routes) < 1 {
+		return fmt.Errorf("no direction found for route %s", routeName)
+	}
+
+	// get the valid directions
+	var validDirections []string
+	var foundDirection *app.Direction
+
+	// get all the directions as a string
+	for _, direction := range directions {
+		validDirections = append(validDirections, direction.DirectionName)
+	}
+
+	// look for the direction
+	for _, direction := range directions {
+		if strings.Contains(direction.DirectionName, directionName) {
+			foundDirection = &direction
+			break
+		}
+	}
+
+	if foundDirection == nil {
+		return fmt.Errorf("no direction found for route %s. Valid directions are: %v", routeName, validDirections)
+	}
+	// direction := directions[0]
+
 	// get the next N departures in a certain direction
-	departuresTowardsDirection, err := app.GetNextDepartureTowards(departures, direction, departuresCount, timezone)
+	departuresTowardsDirection, err := app.GetNextDepartureTowards(departures, foundDirection.DirectionID, departuresCount, timezone)
 	if err != nil {
 		fmt.Println(err)
 		return errors.New("failed to get departures in specific direction")
@@ -98,7 +138,7 @@ func departuresAction(_ *cli.Context, routeID int, stopID int, direction int, de
 		return nil
 	}
 
-	PrintFormatted[app.Departure](nextDepartures, format, delimiter)
+	PrintFormatted[app.Departure](nextDepartures, format, delimiter, timezone)
 	return nil
 }
 
@@ -123,7 +163,7 @@ func directionsAction(cCtx *cli.Context, format string, delimiter string) error 
 	}
 
 	// format as a string
-	PrintFormatted[app.Direction](directions, format, delimiter)
+	PrintFormatted[app.Direction](directions, format, delimiter, "Australia/Sydney")
 	return nil
 }
 
@@ -131,10 +171,9 @@ func main() {
 	var format string
 	var delimiter string
 	var departuresCount int
-	var routeID int
 	var routeName string
-	var stopID int
-	var directionID int
+	var stopName string
+	var directionName string
 	var timezone string
 
 	flags := []cli.Flag{
@@ -193,27 +232,27 @@ func main() {
 						Usage:       "The next N trains departing",
 						Destination: &departuresCount,
 					},
-					&cli.IntFlag{
+					&cli.StringFlag{
 						Name:        "route",
-						Value:       -1,
+						Value:       "",
 						Usage:       "The route ID",
-						Destination: &routeID,
+						Destination: &routeName,
 					},
-					&cli.IntFlag{
+					&cli.StringFlag{
 						Name:        "stop",
-						Value:       -1,
+						Value:       "",
 						Usage:       "The stop ID",
-						Destination: &stopID,
+						Destination: &stopName,
 					},
-					&cli.IntFlag{
+					&cli.StringFlag{
 						Name:        "direction",
-						Value:       -1,
+						Value:       "",
 						Usage:       "The direction ID",
-						Destination: &directionID,
+						Destination: &directionName,
 					},
 				),
 				Action: func(c *cli.Context) error {
-					return departuresAction(c, routeID, stopID, directionID, departuresCount, format, delimiter, timezone)
+					return departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
 				},
 			},
 			{

@@ -27,13 +27,12 @@ ptv-status-line directions --format "DirectionID DirectionName" --delimiter " ->
 
 # print the next departures from a station in a direction
 ptv-status-line departures \
-    --count 2 \
-    --direction 1 \
-    --route 9 \
-    --stop 1163 \
-    --format "StopID ScheduledDepartureUTC" \
-    --timezone "Australia/Sydney" \
-    --delimiter " - "
+--count 1 \
+--direction "Flinders" \
+--route "Belgrave" \
+--stop "Ringwood" \
+--timezone "Australia/Sydney" \
+--format "ScheduledDepartureUTC"
 ```
 
 ## Limitations

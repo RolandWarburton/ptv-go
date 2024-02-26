@@ -20,14 +20,15 @@ func WriteToJSONFile(data any) {
 }
 
 // format output as a string
-func PrintFormatted[Type any](data []Type, format string, delimiter string) {
-	// Example --format "RouteID RouteName"
+// Example --format "RouteID RouteName"
+func PrintFormatted[Type any](data []Type, format string, delimiter string, timezone string) {
+	data, _ = ConvertDatesToTimezone[Type](data, timezone)
 	formatArgs := strings.Split(format, " ")
 	result := ""
 	for i, item := range data {
+		val := reflect.ValueOf(item)
 		for j, arg := range formatArgs {
 			// dynamically access the fields of the Route
-			val := reflect.ValueOf(item)
 			field := val.FieldByName(arg)
 			if field.IsValid() && j < len(formatArgs)-1 {
 				result += fmt.Sprintf("%v%s", field.Interface(), delimiter)
@@ -85,7 +86,7 @@ func ConvertDatesToTimezone[Type interface{}](data []Type, timezone string) ([]T
 			continue
 		}
 
-		// // parse the date string into a date
+		// parse the date string into a date
 		layout := "02-01-2006 03:04 PM"
 		departureDate, err := time.Parse(layout, field.Interface().(string))
 		if err != nil {
