@@ -67,8 +67,21 @@ func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter s
 }
 
 func departuresAction(_ *cli.Context, routeName string, stopName string, directionName string, departuresCount int, format string, delimiter string, timezone string) error {
+	if stopName == "" || routeName == "" || directionName == "" {
+		return fmt.Errorf(
+			"missing required information: "+
+				"stopName=%q, "+
+				"routeName=%q, "+
+				"directionName=%q",
+			stopName, routeName, directionName,
+		)
+	}
+
 	routes, err := app.GetRoutes(routeName)
-	if err != nil || len(routes) < 1 {
+	if err != nil || len(routes) != 1 {
+		if len(routes) > 1 {
+			return fmt.Errorf("too many routes returned for route \"%s\"", routeName)
+		}
 		return fmt.Errorf("no route found for route %s", routeName)
 	}
 	route := routes[0]
@@ -109,7 +122,7 @@ func departuresAction(_ *cli.Context, routeName string, stopName string, directi
 	}
 
 	if foundDirection == nil {
-		return fmt.Errorf("no direction found for route %s. Valid directions are: %v", routeName, validDirections)
+		return fmt.Errorf("no direction found for route %s. Valid directions are: %v", routeName, strings.Join(validDirections, ", "))
 	}
 	// direction := directions[0]
 
@@ -206,7 +219,11 @@ func main() {
 				Usage: "explore routes",
 				Flags: flags,
 				Action: func(c *cli.Context) error {
-					return routeAction(c, format, delimiter)
+					err := routeAction(c, format, delimiter)
+					if err != nil {
+						fmt.Println(err)
+					}
+					return nil
 				},
 			},
 			{
@@ -219,7 +236,11 @@ func main() {
 					Destination: &routeName,
 				}),
 				Action: func(c *cli.Context) error {
-					return stopsAction(c, routeName, format, delimiter)
+					err := stopsAction(c, routeName, format, delimiter)
+					if err != nil {
+						fmt.Println(err)
+					}
+					return nil
 				},
 			},
 			{
@@ -228,7 +249,7 @@ func main() {
 				Flags: append(flags,
 					&cli.IntFlag{
 						Name:        "count",
-						Value:       -1,
+						Value:       1,
 						Usage:       "The next N trains departing",
 						Destination: &departuresCount,
 					},
@@ -252,7 +273,11 @@ func main() {
 					},
 				),
 				Action: func(c *cli.Context) error {
-					return departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
+					err := departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
+					if err != nil {
+						fmt.Println(err)
+					}
+					return nil
 				},
 			},
 			{
@@ -260,7 +285,10 @@ func main() {
 				Usage: "explore directions",
 				Flags: flags,
 				Action: func(c *cli.Context) error {
-					directionsAction(c, format, delimiter)
+					err := directionsAction(c, format, delimiter)
+					if err != nil {
+						fmt.Println(err)
+					}
 					return nil
 				},
 			},
