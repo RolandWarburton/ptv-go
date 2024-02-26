@@ -221,7 +221,7 @@ func main() {
 				Action: func(c *cli.Context) error {
 					err := routeAction(c, format, delimiter)
 					if err != nil {
-						fmt.Println(err)
+						return cli.Exit(err, 1)
 					}
 					return nil
 				},
@@ -238,7 +238,7 @@ func main() {
 				Action: func(c *cli.Context) error {
 					err := stopsAction(c, routeName, format, delimiter)
 					if err != nil {
-						fmt.Println(err)
+						return cli.Exit(err, 1)
 					}
 					return nil
 				},
@@ -275,7 +275,7 @@ func main() {
 				Action: func(c *cli.Context) error {
 					err := departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
 					if err != nil {
-						fmt.Println(err)
+						return cli.Exit(err, 1)
 					}
 					return nil
 				},
@@ -287,7 +287,7 @@ func main() {
 				Action: func(c *cli.Context) error {
 					err := directionsAction(c, format, delimiter)
 					if err != nil {
-						fmt.Println(err)
+						return cli.Exit(err, 1)
 					}
 					return nil
 				},
