@@ -17,7 +17,7 @@ ptv-status-line routes Belgrave
 ptv-status-line stops --stop Ringwood 2
 
 # print a stops attributes as a string
-ptv-status-line stops --route "Belgrave" Ringwood
+ptv-status-line stops --route Belgrave Ringwood
 
 # print the directions for a route
 # you can get the route ID from `directions routes "ROUTE NAME"`
