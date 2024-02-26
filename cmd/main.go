@@ -115,13 +115,11 @@ func printFormatted[Type any](data []Type, format string, delimiter string) {
 			field := val.FieldByName(arg)
 			if field.IsValid() && j < len(formatArgs)-1 {
 				result += fmt.Sprintf("%v%s", field.Interface(), delimiter)
-				// result += fmt.Sprintf("%v", field.Interface())
-				// }
 			} else {
 				result += fmt.Sprintf("%v", field.Interface())
 			}
 		}
-		if i < len(data) - 1 {
+		if i < len(data)-1 {
 			result += "\n"
 		}
 	}
