@@ -6,24 +6,22 @@ Swagger documentation can be found [here](https://timetableapi.ptv.vic.gov.au/sw
 
 ## Examples
 
-Formatting names can be found in `types.go`.
-
 ```bash
 # gets all the data as json
-ptv-status-line routes Belgrave
+ptv-status-line routes
 
 # format a route as a string
-ptv-status-line routes --format "RouteID RouteGtfsID RouteName" --delimiter " - "  Belgrave
+ptv-status-line routes Belgrave
 
 # print information about the Ringwood stop on the Belgrave line
 ptv-status-line stops --stop Ringwood 2
 
 # print a stops attributes as a string
-ptv-status-line stops --route "Belgrave" --format "StopID StopName" Ringwood
+ptv-status-line stops --route "Belgrave" Ringwood
 
 # print the directions for a route
 # you can get the route ID from `directions routes "ROUTE NAME"`
-ptv-status-line directions --format "DirectionID DirectionName" --delimiter " -> " 2
+ptv-status-line directions Belgrave
 
 # print the next departures from a station in a direction
 ptv-status-line departures \
@@ -33,6 +31,24 @@ ptv-status-line departures \
 --stop "Ringwood" \
 --timezone "Australia/Sydney" \
 --format "ScheduledDepartureUTC"
+```
+
+## Formatting
+
+By default each command will output a JSON response.
+If the `--format` flag is encountered the output will be formatted
+to the formats space separated names.
+
+Formatting names can be found in `types.go`.
+
+```bash
+# example of using formatting
+# print the just direction ID and the direction name
+ptv-status-line directions --format "DirectionID DirectionName" --delimiter " -> " Belgrave
+
+# OUTPUT:
+# 3 -> Belgrave
+# 1 -> City (Flinders Street)
 ```
 
 ## Limitations
