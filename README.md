@@ -60,5 +60,5 @@ To get these values you can parse the values using a JSON processor such as [jq]
 
 ```bash
 # get the zone for Ringwood Station on the Belgrave line
-ptv-status-line stops --stop Ringwood 2 |  jq -r '.[0].stop_ticket.zone'
+ptv-status-line stops --route Belgrave Ringwood | jq -r '.[0].stop_ticket.zone'
 ```
