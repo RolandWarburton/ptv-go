@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	app "github.com/rolandwarburton/ptv-status-line/pkg"
@@ -45,7 +44,6 @@ func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter s
 	if err != nil || len(routes) < 1 {
 		return fmt.Errorf("no route found for route %s", routeName)
 	}
-
 	route := routes[0]
 
 	// get the stops
@@ -105,16 +103,19 @@ func departuresAction(_ *cli.Context, routeID int, stopID int, direction int, de
 }
 
 func directionsAction(cCtx *cli.Context, format string, delimiter string) error {
-	arg1 := cCtx.Args().First()
-	if arg1 == "" {
+	routeName := cCtx.Args().First()
+	if routeName == "" {
 		return errors.New("route ID not provided")
 	}
-	var routeID int
-	var err error
-	if routeID, err = strconv.Atoi(arg1); err != nil {
-		return errors.New("failed to parse route ID")
+
+	routes, err := app.GetRoutes(routeName)
+	if err != nil || len(routes) < 1 {
+		return fmt.Errorf("no route found for route %s", routeName)
 	}
-	directions, _ := app.GetDirections(routeID)
+	route := routes[0]
+
+	directions, _ := app.GetDirections(route.RouteID)
+
 	// print as json if no formatting is given
 	if format == "" {
 		PrettyPrint(directions, "Australia/Sydney")
