@@ -14,36 +14,37 @@ import (
 )
 
 func routeAction(cCtx *cli.Context, format string, delimiter string) error {
+func routeAction(cCtx *cli.Context, format string, delimiter string) ([]app.Route, error) {
 	// get routes
 	routes, _ := app.GetRoutes(cCtx.Args().First())
 
 	// guard against no routes
 	if len(routes) == 0 {
 		fmt.Println("[]")
-		return nil
+		return []app.Route{}, nil
 	}
 
 	// if not formatting print as JSON
 	if !cCtx.IsSet("format") {
 		jsonData, _ := json.MarshalIndent(routes, "", "  ")
 		fmt.Println(string(jsonData))
-		return nil
+		return routes, nil
 	}
 
 	PrintFormatted[app.Route](routes, format, delimiter, "Australia/Sydney")
-	return nil
+	return routes, nil
 }
 
-func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter string) error {
+func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter string) ([]app.Stop, error) {
 	// ensure a route ID is given
 	stopName := cCtx.Args().First()
 	if stopName == "" {
-		return errors.New("please specify a stop name")
+		return nil, errors.New("please specify a stop name")
 	}
 
 	routes, err := app.GetRoutes(routeName)
 	if err != nil || len(routes) < 1 {
-		return fmt.Errorf("no route found for route %s", routeName)
+		return nil, fmt.Errorf("no route found for route %s", routeName)
 	}
 	route := routes[0]
 
@@ -51,24 +52,24 @@ func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter s
 	stops, err := app.GetStops(route.RouteID, "", stopName)
 	if err != nil {
 		fmt.Println(err)
-		return errors.New("failed to get routes")
+		return nil, errors.New("failed to get routes")
 	}
 
 	// print as json if no formatting is given
 	if format == "" {
 		jsonData, _ := json.MarshalIndent(stops, "", "  ")
 		fmt.Println(string(jsonData))
-		return nil
+		return stops, nil
 	}
 
 	PrintFormatted[app.Stop](stops, format, delimiter, "Australia/Sydney")
 
-	return nil
+	return stops, nil
 }
 
-func departuresAction(_ *cli.Context, routeName string, stopName string, directionName string, departuresCount int, format string, delimiter string, timezone string) error {
+func departuresAction(_ *cli.Context, routeName string, stopName string, directionName string, departuresCount int, format string, delimiter string, timezone string) ([]app.Departure, error) {
 	if stopName == "" || routeName == "" || directionName == "" {
-		return fmt.Errorf(
+		return nil, fmt.Errorf(
 			"missing required information: "+
 				"stopName=%q, "+
 				"routeName=%q, "+
@@ -80,28 +81,27 @@ func departuresAction(_ *cli.Context, routeName string, stopName string, directi
 	routes, err := app.GetRoutes(routeName)
 	if err != nil || len(routes) != 1 {
 		if len(routes) > 1 {
-			return fmt.Errorf("too many routes returned for route \"%s\"", routeName)
+			return nil, fmt.Errorf("too many routes returned for route \"%s\"", routeName)
 		}
-		return fmt.Errorf("no route found for route %s", routeName)
+		return nil, fmt.Errorf("no route found for route %s", routeName)
 	}
 	route := routes[0]
 
 	stops, err := app.GetStops(route.RouteID, "", stopName)
 	if err != nil || len(stops) < 1 {
-		return fmt.Errorf("no route found for route %s", routeName)
+		return nil, fmt.Errorf("no route found for route %s", routeName)
 	}
 	stop := stops[0]
 
 	// get the departures for a stop on a route
 	departures, err := app.GetDepartures(stop.StopID, route.RouteID, "")
 	if err != nil {
-		fmt.Println(err)
-		return errors.New("failed to get departures")
+		return nil, errors.New("failed to get departures")
 	}
 
 	directions, err := app.GetDirections(route.RouteID)
 	if err != nil || len(routes) < 1 {
-		return fmt.Errorf("no direction found for route %s", routeName)
+		return nil, fmt.Errorf("no direction found for route %s", routeName)
 	}
 
 	// get the valid directions
@@ -122,15 +122,13 @@ func departuresAction(_ *cli.Context, routeName string, stopName string, directi
 	}
 
 	if foundDirection == nil {
-		return fmt.Errorf("no direction found for route %s. Valid directions are: %v", routeName, strings.Join(validDirections, ", "))
+		return nil, fmt.Errorf("no direction found for route %s. Valid directions are: %v", routeName, strings.Join(validDirections, ", "))
 	}
-	// direction := directions[0]
 
 	// get the next N departures in a certain direction
 	departuresTowardsDirection, err := app.GetNextDepartureTowards(departures, foundDirection.DirectionID, departuresCount, timezone)
 	if err != nil {
-		fmt.Println(err)
-		return errors.New("failed to get departures in specific direction")
+		return nil, errors.New("failed to get departures in specific direction")
 	}
 
 	nextDepartures := []app.Departure{}
@@ -148,22 +146,22 @@ func departuresAction(_ *cli.Context, routeName string, stopName string, directi
 
 	if format == "" {
 		PrettyPrint[app.Departure](departuresTowardsDirection, timezone)
-		return nil
+		return nextDepartures, nil
 	}
 
 	PrintFormatted[app.Departure](nextDepartures, format, delimiter, timezone)
-	return nil
+	return nextDepartures, nil
 }
 
-func directionsAction(cCtx *cli.Context, format string, delimiter string) error {
+func directionsAction(cCtx *cli.Context, format string, delimiter string) ([]app.Direction, error) {
 	routeName := cCtx.Args().First()
 	if routeName == "" {
-		return errors.New("route ID not provided")
+		return nil, errors.New("route ID not provided")
 	}
 
 	routes, err := app.GetRoutes(routeName)
 	if err != nil || len(routes) < 1 {
-		return fmt.Errorf("no route found for route %s", routeName)
+		return nil, fmt.Errorf("no route found for route %s", routeName)
 	}
 	route := routes[0]
 
@@ -172,12 +170,12 @@ func directionsAction(cCtx *cli.Context, format string, delimiter string) error 
 	// print as json if no formatting is given
 	if format == "" {
 		PrettyPrint(directions, "Australia/Sydney")
-		return nil
+		return directions, nil
 	}
 
 	// format as a string
 	PrintFormatted[app.Direction](directions, format, delimiter, "Australia/Sydney")
-	return nil
+	return directions, nil
 }
 
 func main() {
@@ -219,7 +217,7 @@ func main() {
 				Usage: "explore routes",
 				Flags: flags,
 				Action: func(c *cli.Context) error {
-					err := routeAction(c, format, delimiter)
+					_, err := routeAction(c, format, delimiter)
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -236,7 +234,7 @@ func main() {
 					Destination: &routeName,
 				}),
 				Action: func(c *cli.Context) error {
-					err := stopsAction(c, routeName, format, delimiter)
+					_, err := stopsAction(c, routeName, format, delimiter)
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -273,7 +271,7 @@ func main() {
 					},
 				),
 				Action: func(c *cli.Context) error {
-					err := departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
+					_, err := departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -285,7 +283,7 @@ func main() {
 				Usage: "explore directions",
 				Flags: flags,
 				Action: func(c *cli.Context) error {
-					err := directionsAction(c, format, delimiter)
+					_, err := directionsAction(c, format, delimiter)
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
