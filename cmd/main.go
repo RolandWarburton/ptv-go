@@ -156,7 +156,7 @@ func departuresAction(_ *cli.Context, routeName string, stopName string, directi
 func directionsAction(cCtx *cli.Context, format string, delimiter string) ([]app.Direction, error) {
 	routeName := cCtx.Args().First()
 	if routeName == "" {
-		return nil, errors.New("route ID not provided")
+		return nil, errors.New("route name not provided")
 	}
 
 	routes, err := app.GetRoutes(routeName)
