@@ -12,9 +12,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func routeAction(cCtx *cli.Context) ([]app.Route, error) {
-	// get routes
-	routes, _ := app.GetRoutes(cCtx.Args().First())
+func routeAction(routeName string) ([]app.Route, error) {
+	routes, _ := app.GetRoutes(routeName)
 
 	// guard against no routes
 	if len(routes) == 0 {
@@ -24,10 +23,7 @@ func routeAction(cCtx *cli.Context) ([]app.Route, error) {
 	return routes, nil
 }
 
-func stopsAction(cCtx *cli.Context, routeName string) ([]app.Stop, error) {
-	// ensure a route ID is given
-	stopName := cCtx.Args().First()
-
+func stopsAction(stopName string, routeName string) ([]app.Stop, error) {
 	routes, err := app.GetRoutes(routeName)
 	if err != nil || len(routes) < 1 {
 		return nil, fmt.Errorf("no route found for route %s", routeName)
@@ -44,7 +40,7 @@ func stopsAction(cCtx *cli.Context, routeName string) ([]app.Stop, error) {
 	return stops, nil
 }
 
-func departuresAction(_ *cli.Context, routeName string, stopName string, directionName string, departuresCount int, timezone string) ([]app.Departure, error) {
+func departuresAction(routeName string, stopName string, directionName string, departuresCount int, timezone string) ([]app.Departure, error) {
 	if stopName == "" || routeName == "" || directionName == "" {
 		return nil, fmt.Errorf(
 			"missing required information: "+
@@ -124,8 +120,7 @@ func departuresAction(_ *cli.Context, routeName string, stopName string, directi
 	return nextDepartures, nil
 }
 
-func directionsAction(cCtx *cli.Context) ([]app.Direction, error) {
-	routeName := cCtx.Args().First()
+func directionsAction(routeName string) ([]app.Direction, error) {
 	if routeName == "" {
 		return nil, errors.New("route name not provided")
 	}
@@ -180,7 +175,8 @@ func main() {
 				Usage: "explore routes",
 				Flags: flags,
 				Action: func(c *cli.Context) error {
-					routes, err := routeAction(c)
+					routeName := c.Args().First()
+					routes, err := routeAction(routeName)
 					PrintResult[app.Route](routes, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
@@ -198,7 +194,8 @@ func main() {
 					Destination: &routeName,
 				}),
 				Action: func(c *cli.Context) error {
-					stops, err := stopsAction(c, routeName)
+					stopName := c.Args().First()
+					stops, err := stopsAction(stopName, routeName)
 					PrintResult[app.Stop](stops, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
@@ -235,8 +232,8 @@ func main() {
 						Destination: &directionName,
 					},
 				),
-				Action: func(c *cli.Context) error {
-					departures, err := departuresAction(c, routeName, stopName, directionName, departuresCount, timezone)
+				Action: func(_ *cli.Context) error {
+					departures, err := departuresAction(routeName, stopName, directionName, departuresCount, timezone)
 					PrintResult[app.Departure](departures, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
@@ -249,7 +246,8 @@ func main() {
 				Usage: "explore directions",
 				Flags: flags,
 				Action: func(c *cli.Context) error {
-					directions, err := directionsAction(c)
+					routeName := c.Args().First()
+					directions, err := directionsAction(routeName)
 					PrintResult[app.Direction](directions, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
