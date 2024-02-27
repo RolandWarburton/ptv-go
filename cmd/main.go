@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -12,17 +11,6 @@ import (
 	app "github.com/rolandwarburton/ptv-status-line/pkg"
 	"github.com/urfave/cli/v2"
 )
-
-func printResult[Type interface{}](cCtx *cli.Context, data []Type, format string, delimiter string, timezone string) {
-	// if not formatting print as JSON
-	if !cCtx.IsSet("format") {
-		jsonData, _ := json.MarshalIndent(data, "", "  ")
-		fmt.Println(string(jsonData))
-		return
-	}
-
-	PrintFormatted[Type](data, format, delimiter, timezone)
-}
 
 func routeAction(cCtx *cli.Context) ([]app.Route, error) {
 	// get routes
@@ -193,7 +181,7 @@ func main() {
 				Flags: flags,
 				Action: func(c *cli.Context) error {
 					routes, err := routeAction(c)
-					printResult[app.Route](c, routes, format, delimiter, "Australia/Sydney")
+					PrintResult[app.Route](routes, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -211,7 +199,7 @@ func main() {
 				}),
 				Action: func(c *cli.Context) error {
 					stops, err := stopsAction(c, routeName, format, delimiter)
-					printResult[app.Stop](c, stops, format, delimiter, "Australia/Sydney")
+					PrintResult[app.Stop](stops, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -249,7 +237,7 @@ func main() {
 				),
 				Action: func(c *cli.Context) error {
 					departures, err := departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
-					printResult[app.Departure](c, departures, format, delimiter, "Australia/Sydney")
+					PrintResult[app.Departure](departures, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -262,7 +250,7 @@ func main() {
 				Flags: flags,
 				Action: func(c *cli.Context) error {
 					directions, err := directionsAction(c, format, delimiter)
-					printResult[app.Direction](c, directions, format, delimiter, "Australia/Sydney")
+					PrintResult[app.Direction](directions, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}

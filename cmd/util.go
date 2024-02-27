@@ -19,6 +19,17 @@ func WriteToJSONFile(data any) {
 	file.Write(jsonData)
 }
 
+func PrintResult[Type interface{}](data []Type, format string, delimiter string, timezone string) {
+	// if not formatting print as JSON
+	if format == "" {
+		jsonData, _ := json.MarshalIndent(data, "", "  ")
+		fmt.Println(string(jsonData))
+		return
+	}
+
+	PrintFormatted[Type](data, format, delimiter, timezone)
+}
+
 // format output as a string
 // Example --format "RouteID RouteName"
 func PrintFormatted[Type any](data []Type, format string, delimiter string, timezone string) {
