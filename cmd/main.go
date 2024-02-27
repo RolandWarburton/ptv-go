@@ -13,25 +13,26 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func routeAction(cCtx *cli.Context, format string, delimiter string) error {
-func routeAction(cCtx *cli.Context, format string, delimiter string) ([]app.Route, error) {
+func printResult[Type interface{}](cCtx *cli.Context, data []Type, format string, delimiter string, timezone string) {
+	// if not formatting print as JSON
+	if !cCtx.IsSet("format") {
+		jsonData, _ := json.MarshalIndent(data, "", "  ")
+		fmt.Println(string(jsonData))
+		return
+	}
+
+	PrintFormatted[Type](data, format, delimiter, timezone)
+}
+
+func routeAction(cCtx *cli.Context) ([]app.Route, error) {
 	// get routes
 	routes, _ := app.GetRoutes(cCtx.Args().First())
 
 	// guard against no routes
 	if len(routes) == 0 {
-		fmt.Println("[]")
 		return []app.Route{}, nil
 	}
 
-	// if not formatting print as JSON
-	if !cCtx.IsSet("format") {
-		jsonData, _ := json.MarshalIndent(routes, "", "  ")
-		fmt.Println(string(jsonData))
-		return routes, nil
-	}
-
-	PrintFormatted[app.Route](routes, format, delimiter, "Australia/Sydney")
 	return routes, nil
 }
 
@@ -51,15 +52,6 @@ func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter s
 		fmt.Println(err)
 		return nil, errors.New("failed to get routes")
 	}
-
-	// print as json if no formatting is given
-	if format == "" {
-		jsonData, _ := json.MarshalIndent(stops, "", "  ")
-		fmt.Println(string(jsonData))
-		return stops, nil
-	}
-
-	PrintFormatted[app.Stop](stops, format, delimiter, "Australia/Sydney")
 
 	return stops, nil
 }
@@ -141,12 +133,6 @@ func departuresAction(_ *cli.Context, routeName string, stopName string, directi
 		}
 	}
 
-	if format == "" {
-		PrettyPrint[app.Departure](departuresTowardsDirection, timezone)
-		return nextDepartures, nil
-	}
-
-	PrintFormatted[app.Departure](nextDepartures, format, delimiter, timezone)
 	return nextDepartures, nil
 }
 
@@ -164,14 +150,6 @@ func directionsAction(cCtx *cli.Context, format string, delimiter string) ([]app
 
 	directions, _ := app.GetDirections(route.RouteID)
 
-	// print as json if no formatting is given
-	if format == "" {
-		PrettyPrint(directions, "Australia/Sydney")
-		return directions, nil
-	}
-
-	// format as a string
-	PrintFormatted[app.Direction](directions, format, delimiter, "Australia/Sydney")
 	return directions, nil
 }
 
@@ -214,7 +192,8 @@ func main() {
 				Usage: "explore routes",
 				Flags: flags,
 				Action: func(c *cli.Context) error {
-					_, err := routeAction(c, format, delimiter)
+					routes, err := routeAction(c)
+					printResult[app.Route](c, routes, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -231,7 +210,8 @@ func main() {
 					Destination: &routeName,
 				}),
 				Action: func(c *cli.Context) error {
-					_, err := stopsAction(c, routeName, format, delimiter)
+					stops, err := stopsAction(c, routeName, format, delimiter)
+					printResult[app.Stop](c, stops, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -268,7 +248,8 @@ func main() {
 					},
 				),
 				Action: func(c *cli.Context) error {
-					_, err := departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
+					departures, err := departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
+					printResult[app.Departure](c, departures, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -280,7 +261,8 @@ func main() {
 				Usage: "explore directions",
 				Flags: flags,
 				Action: func(c *cli.Context) error {
-					_, err := directionsAction(c, format, delimiter)
+					directions, err := directionsAction(c, format, delimiter)
+					printResult[app.Direction](c, directions, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}

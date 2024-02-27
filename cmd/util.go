@@ -30,7 +30,11 @@ func PrintFormatted[Type any](data []Type, format string, delimiter string, time
 		for j, arg := range formatArgs {
 			// dynamically access the fields of the Route
 			field := val.FieldByName(arg)
-			if field.IsValid() && j < len(formatArgs)-1 {
+			// check if we can access the fields values
+			if !field.IsValid() || !field.CanInterface() {
+				continue
+			}
+			if j < len(formatArgs)-1 {
 				result += fmt.Sprintf("%v%s", field.Interface(), delimiter)
 			} else {
 				result += fmt.Sprintf("%v", field.Interface())
