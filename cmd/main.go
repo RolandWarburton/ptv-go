@@ -12,7 +12,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func routeAction(routeName string) ([]app.Route, error) {
+func routesAction(routeName string) ([]app.Route, error) {
 	routes, _ := app.GetRoutes(routeName)
 
 	// guard against no routes
@@ -176,7 +176,7 @@ func main() {
 				Flags: flags,
 				Action: func(c *cli.Context) error {
 					routeName := c.Args().First()
-					routes, err := routeAction(routeName)
+					routes, err := routesAction(routeName)
 					PrintResult[app.Route](routes, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
