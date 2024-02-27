@@ -24,7 +24,7 @@ func routeAction(cCtx *cli.Context) ([]app.Route, error) {
 	return routes, nil
 }
 
-func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter string) ([]app.Stop, error) {
+func stopsAction(cCtx *cli.Context, routeName string) ([]app.Stop, error) {
 	// ensure a route ID is given
 	stopName := cCtx.Args().First()
 
@@ -44,7 +44,7 @@ func stopsAction(cCtx *cli.Context, routeName string, format string, delimiter s
 	return stops, nil
 }
 
-func departuresAction(_ *cli.Context, routeName string, stopName string, directionName string, departuresCount int, format string, delimiter string, timezone string) ([]app.Departure, error) {
+func departuresAction(_ *cli.Context, routeName string, stopName string, directionName string, departuresCount int, timezone string) ([]app.Departure, error) {
 	if stopName == "" || routeName == "" || directionName == "" {
 		return nil, fmt.Errorf(
 			"missing required information: "+
@@ -124,7 +124,7 @@ func departuresAction(_ *cli.Context, routeName string, stopName string, directi
 	return nextDepartures, nil
 }
 
-func directionsAction(cCtx *cli.Context, format string, delimiter string) ([]app.Direction, error) {
+func directionsAction(cCtx *cli.Context) ([]app.Direction, error) {
 	routeName := cCtx.Args().First()
 	if routeName == "" {
 		return nil, errors.New("route name not provided")
@@ -198,7 +198,7 @@ func main() {
 					Destination: &routeName,
 				}),
 				Action: func(c *cli.Context) error {
-					stops, err := stopsAction(c, routeName, format, delimiter)
+					stops, err := stopsAction(c, routeName)
 					PrintResult[app.Stop](stops, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
@@ -236,7 +236,7 @@ func main() {
 					},
 				),
 				Action: func(c *cli.Context) error {
-					departures, err := departuresAction(c, routeName, stopName, directionName, departuresCount, format, delimiter, timezone)
+					departures, err := departuresAction(c, routeName, stopName, directionName, departuresCount, timezone)
 					PrintResult[app.Departure](departures, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
@@ -249,7 +249,7 @@ func main() {
 				Usage: "explore directions",
 				Flags: flags,
 				Action: func(c *cli.Context) error {
-					directions, err := directionsAction(c, format, delimiter)
+					directions, err := directionsAction(c)
 					PrintResult[app.Direction](directions, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
