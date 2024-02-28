@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -130,6 +131,14 @@ func main() {
 				},
 			},
 		},
+	}
+
+	devId := os.Getenv("PTV_DEVID")
+	key := os.Getenv("PTV_KEY")
+	if key == "" || devId == "" {
+		fmt.Println("PTV_KEY or PTV_DEVID not set in environment")
+		os.Exit(1)
+		return
 	}
 
 	if err := app.Run(os.Args); err != nil {
