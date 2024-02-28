@@ -8,18 +8,18 @@ import (
 	"time"
 )
 
-func RoutesAction(routeName string) ([]app.Route, error) {
+func RoutesAction(routeName string) ([]Route, error) {
 	routes, _ := app.GetRoutes(routeName)
 
 	// guard against no routes
 	if len(routes) == 0 {
-		return []app.Route{}, nil
+		return []Route{}, nil
 	}
 
 	return routes, nil
 }
 
-func StopsAction(stopName string, routeName string) ([]app.Stop, error) {
+func StopsAction(stopName string, routeName string) ([]Stop, error) {
 	routes, err := app.GetRoutes(routeName)
 	if err != nil || len(routes) < 1 {
 		return nil, fmt.Errorf("no route found for route %s", routeName)
@@ -36,7 +36,7 @@ func StopsAction(stopName string, routeName string) ([]app.Stop, error) {
 	return stops, nil
 }
 
-func DeparturesAction(routeName string, stopName string, directionName string, departuresCount int, timezone string) ([]app.Departure, error) {
+func DeparturesAction(routeName string, stopName string, directionName string, departuresCount int, timezone string) ([]Departure, error) {
 	if stopName == "" || routeName == "" || directionName == "" {
 		return nil, fmt.Errorf(
 			"missing required information: "+
@@ -75,7 +75,7 @@ func DeparturesAction(routeName string, stopName string, directionName string, d
 
 	// get the valid directions
 	var validDirections []string
-	var foundDirection *app.Direction
+	var foundDirection *Direction
 
 	// get all the directions as a string
 	for _, direction := range directions {
@@ -100,7 +100,7 @@ func DeparturesAction(routeName string, stopName string, directionName string, d
 		return nil, errors.New("failed to get departures in specific direction")
 	}
 
-	nextDepartures := []app.Departure{}
+	nextDepartures := []Departure{}
 	for i := 0; i < len(departuresTowardsDirection); i++ {
 		if err == nil {
 			layout := "2006-01-02T15:04:05Z"
@@ -116,7 +116,7 @@ func DeparturesAction(routeName string, stopName string, directionName string, d
 	return nextDepartures, nil
 }
 
-func DirectionsAction(routeName string) ([]app.Direction, error) {
+func DirectionsAction(routeName string) ([]Direction, error) {
 	if routeName == "" {
 		return nil, errors.New("route name not provided")
 	}
