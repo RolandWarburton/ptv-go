@@ -3,13 +3,13 @@ package statusLine
 import (
 	"errors"
 	"fmt"
-	app "github.com/rolandwarburton/ptv-status-line/internal"
+	// app "github.com/rolandwarburton/ptv-status-line/internal"
 	"strings"
 	"time"
 )
 
 func RoutesAction(routeName string) ([]Route, error) {
-	routes, _ := app.GetRoutes(routeName)
+	routes, _ := GetRoutes(routeName)
 
 	// guard against no routes
 	if len(routes) == 0 {
@@ -20,14 +20,14 @@ func RoutesAction(routeName string) ([]Route, error) {
 }
 
 func StopsAction(stopName string, routeName string) ([]Stop, error) {
-	routes, err := app.GetRoutes(routeName)
+	routes, err := GetRoutes(routeName)
 	if err != nil || len(routes) < 1 {
 		return nil, fmt.Errorf("no route found for route %s", routeName)
 	}
 	route := routes[0]
 
 	// get the stops
-	stops, err := app.GetStops(route.RouteID, "", stopName)
+	stops, err := GetStops(route.RouteID, "", stopName)
 	if err != nil {
 		fmt.Println(err)
 		return nil, errors.New("failed to get routes")
@@ -47,7 +47,7 @@ func DeparturesAction(routeName string, stopName string, directionName string, d
 		)
 	}
 
-	routes, err := app.GetRoutes(routeName)
+	routes, err := GetRoutes(routeName)
 	if err != nil || len(routes) != 1 {
 		if len(routes) > 1 {
 			return nil, fmt.Errorf("too many routes returned for route \"%s\"", routeName)
@@ -56,19 +56,19 @@ func DeparturesAction(routeName string, stopName string, directionName string, d
 	}
 	route := routes[0]
 
-	stops, err := app.GetStops(route.RouteID, "", stopName)
+	stops, err := GetStops(route.RouteID, "", stopName)
 	if err != nil || len(stops) < 1 {
 		return nil, fmt.Errorf("no route found for route %s", routeName)
 	}
 	stop := stops[0]
 
 	// get the departures for a stop on a route
-	departures, err := app.GetDepartures(stop.StopID, route.RouteID, "")
+	departures, err := GetDepartures(stop.StopID, route.RouteID, "")
 	if err != nil {
 		return nil, errors.New("failed to get departures")
 	}
 
-	directions, err := app.GetDirections(route.RouteID)
+	directions, err := GetDirections(route.RouteID)
 	if err != nil || len(routes) < 1 {
 		return nil, fmt.Errorf("no direction found for route %s", routeName)
 	}
@@ -95,7 +95,7 @@ func DeparturesAction(routeName string, stopName string, directionName string, d
 	}
 
 	// get the next N departures in a certain direction
-	departuresTowardsDirection, err := app.GetNextDepartureTowards(departures, foundDirection.DirectionID, departuresCount, timezone)
+	departuresTowardsDirection, err := GetNextDepartureTowards(departures, foundDirection.DirectionID, departuresCount, timezone)
 	if err != nil {
 		return nil, errors.New("failed to get departures in specific direction")
 	}
@@ -121,13 +121,13 @@ func DirectionsAction(routeName string) ([]Direction, error) {
 		return nil, errors.New("route name not provided")
 	}
 
-	routes, err := app.GetRoutes(routeName)
+	routes, err := GetRoutes(routeName)
 	if err != nil || len(routes) < 1 {
 		return nil, fmt.Errorf("no route found for route %s", routeName)
 	}
 	route := routes[0]
 
-	directions, _ := app.GetDirections(route.RouteID)
+	directions, _ := GetDirections(route.RouteID)
 
 	return directions, nil
 }
