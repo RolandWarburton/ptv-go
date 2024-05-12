@@ -1,4 +1,4 @@
-package statusLine
+package ptvgo
 
 type Status struct {
 	version string `json:"version"`
