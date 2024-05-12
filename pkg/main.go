@@ -22,7 +22,7 @@ func RoutesAction(routeName string) ([]Route, error) {
 func StopsAction(stopName string, routeName string) ([]Stop, error) {
 	routes, err := GetRoutes(routeName)
 	if err != nil || len(routes) < 1 {
-		return nil, fmt.Errorf("no route found for route %s", routeName)
+		return nil, fmt.Errorf("no route found for route %s: %s", routeName, err.Error())
 	}
 	route := routes[0]
 
@@ -52,13 +52,13 @@ func DeparturesAction(routeName string, stopName string, directionName string, d
 		if len(routes) > 1 {
 			return nil, fmt.Errorf("too many routes returned for route \"%s\"", routeName)
 		}
-		return nil, fmt.Errorf("no route found for route %s", routeName)
+		return nil, fmt.Errorf("no route found for route %s: %s", routeName, err.Error())
 	}
 	route := routes[0]
 
 	stops, err := GetStops(route.RouteID, "", stopName)
 	if err != nil || len(stops) < 1 {
-		return nil, fmt.Errorf("no route found for route %s", routeName)
+		return nil, fmt.Errorf("no stops found for route %s: %s", routeName, err.Error())
 	}
 	stop := stops[0]
 
@@ -70,7 +70,7 @@ func DeparturesAction(routeName string, stopName string, directionName string, d
 
 	directions, err := GetDirections(route.RouteID)
 	if err != nil || len(routes) < 1 {
-		return nil, fmt.Errorf("no direction found for route %s", routeName)
+		return nil, fmt.Errorf("no direction found for route %s: %s", routeName, err.Error())
 	}
 
 	// get the valid directions
@@ -123,7 +123,7 @@ func DirectionsAction(routeName string) ([]Direction, error) {
 
 	routes, err := GetRoutes(routeName)
 	if err != nil || len(routes) < 1 {
-		return nil, fmt.Errorf("no route found for route %s", routeName)
+		return nil, fmt.Errorf("no route found for route %s: %s", routeName, err.Error())
 	}
 	route := routes[0]
 
