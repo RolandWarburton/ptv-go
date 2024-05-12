@@ -5,9 +5,7 @@ import (
 	"log"
 	"os"
 
-	// app "github.com/rolandwarburton/ptv-status-line/internal"
-
-	statusLine "github.com/rolandwarburton/ptv-status-line/pkg"
+	statusLine "github.com/rolandwarburton/ptv-go/pkg"
 	"github.com/urfave/cli/v2"
 )
 
@@ -42,7 +40,7 @@ func main() {
 	}
 
 	app := &cli.App{
-		Name:                 "ptv-status-line",
+		Name:                 "ptv-go",
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{
 			{

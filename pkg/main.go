@@ -3,7 +3,6 @@ package statusLine
 import (
 	"errors"
 	"fmt"
-	// app "github.com/rolandwarburton/ptv-status-line/internal"
 	"strings"
 	"time"
 )

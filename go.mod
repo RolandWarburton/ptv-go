@@ -1,4 +1,4 @@
-module github.com/rolandwarburton/ptv-status-line
+module github.com/rolandwarburton/ptv-go
 
 go 1.21.4
 
