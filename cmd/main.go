@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	statusLine "github.com/rolandwarburton/ptv-go/pkg"
+	ptvgo "github.com/rolandwarburton/ptv-go/pkg"
 	"github.com/urfave/cli/v2"
 )
 
@@ -49,8 +49,8 @@ func main() {
 				Flags: flags,
 				Action: func(c *cli.Context) error {
 					routeName := c.Args().First()
-					routes, err := statusLine.RoutesAction(routeName)
-					PrintResult[statusLine.Route](routes, format, delimiter, "Australia/Sydney")
+					routes, err := ptvgo.RoutesAction(routeName)
+					PrintResult[ptvgo.Route](routes, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -68,8 +68,8 @@ func main() {
 				}),
 				Action: func(c *cli.Context) error {
 					stopName := c.Args().First()
-					stops, err := statusLine.StopsAction(stopName, routeName)
-					PrintResult[statusLine.Stop](stops, format, delimiter, "Australia/Sydney")
+					stops, err := ptvgo.StopsAction(stopName, routeName)
+					PrintResult[ptvgo.Stop](stops, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -106,8 +106,8 @@ func main() {
 					},
 				),
 				Action: func(_ *cli.Context) error {
-					departures, err := statusLine.DeparturesAction(routeName, stopName, directionName, departuresCount, timezone)
-					PrintResult[statusLine.Departure](departures, format, delimiter, "Australia/Sydney")
+					departures, err := ptvgo.DeparturesAction(routeName, stopName, directionName, departuresCount, timezone)
+					PrintResult[ptvgo.Departure](departures, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
@@ -120,8 +120,8 @@ func main() {
 				Flags: flags,
 				Action: func(c *cli.Context) error {
 					routeName := c.Args().First()
-					directions, err := statusLine.DirectionsAction(routeName)
-					PrintResult[statusLine.Direction](directions, format, delimiter, "Australia/Sydney")
+					directions, err := ptvgo.DirectionsAction(routeName)
+					PrintResult[ptvgo.Direction](directions, format, delimiter, "Australia/Sydney")
 					if err != nil {
 						return cli.Exit(err, 1)
 					}
