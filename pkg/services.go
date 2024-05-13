@@ -9,12 +9,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
 
-var Key string
-var DevID string
+var Key = os.Getenv("PTV_KEY")
+var DevID = os.Getenv("PTV_DEVID")
 
 func SetPTVSecrets(key string, devID string) {
 	Key = key
