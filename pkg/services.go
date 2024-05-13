@@ -9,16 +9,21 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 )
 
+var Key string
+var DevID string
+
+func SetPTVSecrets(key string, devID string) {
+	Key = key
+	DevID = devID
+}
+
 func GetUrl(request string) (string, error) {
-	devId := os.Getenv("PTV_DEVID")
-	key := os.Getenv("PTV_KEY")
-	if key == "" || devId == "" {
-		return "", errors.New("PTV_KEY or PTV_DEVID not set in environment")
+	if Key == "" || DevID == "" {
+		return "", errors.New("PTV_KEY or PTV_DEVID not set")
 	}
 	baseURL := "http://timetableapi.ptv.vic.gov.au"
 
@@ -27,8 +32,8 @@ func GetUrl(request string) (string, error) {
 	} else {
 		request = request + "?"
 	}
-	raw := request + fmt.Sprintf("devid=%s", devId)
-	h := hmac.New(sha1.New, []byte(key))
+	raw := request + fmt.Sprintf("devid=%s", DevID)
+	h := hmac.New(sha1.New, []byte(Key))
 	h.Write([]byte(raw))
 	signature := hex.EncodeToString(h.Sum(nil))
 	url := fmt.Sprintf("%s%s&signature=%s", baseURL, raw, signature)
